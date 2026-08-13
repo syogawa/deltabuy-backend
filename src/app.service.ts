@@ -6,8 +6,8 @@ export class AppService {
     return 'Hello World!';
   }
 
-  getFuck(): string {
-    return 'FUCK YOU!';
+  getSwear(): string {
+    return 'Shit!';
   }
 }
 
