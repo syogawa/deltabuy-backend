@@ -31,6 +31,7 @@ enum DealStatus {
   COMPLETED
 }
 
+
 //Таблица пользователя
 model User {
   id             Int            @id @default(autoincrement()) //Первичный ключ
@@ -56,8 +57,8 @@ model Product {
   price             Decimal           @db.Decimal(10, 2) //Цена продукта
   currency          Currency          @default(RUB) //Валюта цены по умолчанию RUB
   createdAt         DateTime          @default(now()) @map("created_at") //Дата создания продукта
-  updatedAt         DateTime?         @updatedAt @map("updated_at") //Дата обновления продукта
-  deletedAt         DateTime?         @map("deleted_at") //Дата удаления продукта
+  updatedAt         DateTime?         @updatedAt @map("updated_at") //Дата обновления продукта   возможен null
+  deletedAt         DateTime?         @map("deleted_at") //Дата удаления продукта   возможен null
   is_active         Boolean           @default(true) @map("is_active") //Статус активности продукта
   //Связи с другими таблицами Many to Many
   deals             Deal[] //Список сделок продукта           
@@ -68,90 +69,95 @@ model Product {
 }
 
 model Deal {
-  id        Int        @id @default(autoincrement())
-  userId    Int        @map("user_id")
-  productId Int        @map("product_id")
-  status    DealStatus @default(PAID)
-  createdAt DateTime   @default(now()) @map("created_at")
-  deletedAt DateTime?  @map("deleted_at")
-
-  user    User    @relation(fields: [userId], references: [id])
+  id        Int        @id @default(autoincrement())    //первичный ключ 
+  userId    Int        @map("user_id")     //айди пользователя внешний ключ
+  productId Int        @map("product_id")  //айди продукта  внешний ключ
+  status    DealStatus @default(PAID)      //статус сделки
+  createdAt DateTime   @default(now()) @map("created_at") //когда создано
+  deletedAt DateTime?  @map("deleted_at") //когда удалено возможен null
+  //Связи с другими таблицами Many to Many
+  user    User    @relation(fields: [userId], references: [id])    
   product Product @relation(fields: [productId], references: [id])
 }
 
 model Session {
-  id           Int      @id @default(autoincrement())
-  userId       Int      @map("user_id")
-  refreshToken String   @unique @map("refresh_token")
-  createdAt    DateTime @default(now()) @map("created_at")
-  expiresAt    DateTime @map("expires_at")
-
-  user User @relation(fields: [userId], references: [id])
+  id           Int      @id @default(autoincrement())  //первичный ключ айди
+  userId       Int      @map("user_id")  //внешний ключ юзер айди
+  refreshToken String   @unique @map("refresh_token") //рефреш токен
+  createdAt    DateTime @default(now()) @map("created_at") // когда создана сессия
+  expiresAt    DateTime @map("expires_at")  //когда закончится refresh токен
+  //Связи с другими таблицами Many to Many
+  user User @relation(fields: [userId], references: [id])  
 }
 
 model Oauth {
-  id         Int      @id @default(autoincrement())
-  userId     Int      @map("user_id")
-  provider   String
-  providerId String   @map("provider_id")
-  createdAt  DateTime @default(now()) @map("created_at")
-
+  id         Int      @id @default(autoincrement())  //первичный ключ айди
+  userId     Int      @map("user_id")         //внешний ключ юзер айди
+  provider   String   //название привявзанной соцсети
+  providerId String   @map("provider_id") //айди привязанной соцсети
+  createdAt  DateTime @default(now()) @map("created_at") //когда создана привязка
+  //Связи с другими таблицами Many to Many
   user User @relation(fields: [userId], references: [id])
 
-  @@unique([provider, providerId])
-  @@unique([userId, provider])
+  @@unique([provider, providerId]) //на одного провайдера существует только один айдишник
+  @@unique([userId, provider])    //к одному юзеру может привязан быть только один провайдер
 }
 
 model productImage {
-  id        Int    @id @default(autoincrement())
-  productId Int    @map("product_id")
-  url       String
-  position  Int    @default(0)
-
+  id        Int    @id @default(autoincrement())  //первичный ключ айди
+  productId Int    @map("product_id") //айди продукта  внешний ключ
+  url       String //дорога до изображения
+  position  Int    @default(0)  //позиция изображения
+  //Связи с другими таблицами Many to Many
   product Product @relation(fields: [productId], references: [id])
-
+  //название таблицы в базе данных
   @@map("product_image")
 }
 
 model Category {
-  id                Int               @id @default(autoincrement())
-  name              String
-  parentId          Int?              @map("parent_id")
-  createdAt         DateTime          @default(now()) @map("created_at")
-  updatedAt         DateTime?         @updatedAt @map("updated_at")
-  deletedAt         DateTime?         @map("deleted_at")
-  productCategories ProductCategory[]
+  id                Int               @id @default(autoincrement()) // первичный ключ
+  name              String                                             // название категории
+  parentId          Int?              @map("parent_id")               // id родительской категории (null = корневая)
+  createdAt         DateTime          @default(now()) @map("created_at") // дата создания
+  updatedAt         DateTime?         @updatedAt @map("updated_at")   // дата последнего обновления
+  deletedAt         DateTime?         @map("deleted_at")              // дата мягкого удаления (null = активна)
+  
+  // Связи
+  productCategories ProductCategory[]                                 // many-to-many с товарами
 }
 
 model ProductViews {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @map("user_id")
-  productId Int      @map("product_id")
-  viewedAt  DateTime @default(now()) @map("viewed_at")
+  id        Int      @id @default(autoincrement()) // первичный ключ
+  userId    Int      @map("user_id")               // id пользователя, который просмотрел
+  productId Int      @map("product_id")            // id просмотренного товара
+  viewedAt  DateTime @default(now()) @map("viewed_at") // дата и время просмотра
 
+  // Связи
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
-  @@map("product_views")
+  @@map("product_views") // название таблицы в БД
 }
 
 model Favorite {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @map("user_id")
-  productId Int      @map("product_id")
-  createdAt DateTime @default(now()) @map("created_at")
+  id        Int      @id @default(autoincrement()) // первичный ключ
+  userId    Int      @map("user_id")               // id пользователя
+  productId Int      @map("product_id")            // id товара в избранном
+  createdAt DateTime @default(now()) @map("created_at") // дата добавления в избранное
 
+  // Связи
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 }
 
 model ProductCategory {
-  productId  Int @map("product_id")
-  categoryId Int @map("category_id")
+  productId  Int @map("product_id")  // id товара
+  categoryId Int @map("category_id") // id категории
 
+  // Связи many-to-many
   product  Product  @relation(fields: [productId], references: [id])
   category Category @relation(fields: [categoryId], references: [id])
 
-  @@id([productId, categoryId])
-  @@map("product_category")
+  @@id([productId, categoryId]) // составной первичный ключ
+  @@map("product_category")     // название таблицы в БД
 }
