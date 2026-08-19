@@ -1,63 +1,70 @@
+// Дефолт настройки можно не трогать
 generator client {
   provider     = "prisma-client"
   output       = "../generated/prisma"
   moduleFormat = "cjs"
 }
 
+//тип базы данных
 datasource db {
   provider = "postgresql"
 }
 
+//Описание возможных ролей пользователей
 enum Role {
   USER
   ADMIN
   MODERATOR
 }
 
+//Описание возможных валют
 enum Currency {
   USD
   RUB
   EUR
 }
 
+//Описание статусов сделки
 enum DealStatus {
   PAID
   REFUNDED
   COMPLETED
 }
 
+//Таблица пользователя
 model User {
-  id             Int            @id @default(autoincrement())
-  name           String
-  avatar         String?
-  email          String         @unique
-  password       String
-  createdAt      DateTime       @default(now()) @map("created_at")
-  deletedAt      DateTime?      @map("deleted_at")
-  role           Role           @default(USER)
-  deals          Deal[]
-  sessions       Session[]
-  oAuth          Oauth[]
-  viewedProducts ProductViews[]
-  favorite       Favorite[]
+  id             Int            @id @default(autoincrement()) //Первичный ключ
+  name           String //Имя пользователя
+  avatar         String? //URL Аватар пользователя
+  email          String         @unique //Email пользователя
+  password       String //Пароль пользователя в хэшированном виде
+  createdAt      DateTime       @default(now()) @map("created_at") //Дата создания пользователя
+  deletedAt      DateTime?      @map("deleted_at") //Дата удаления пользователя возможнен null
+  role           Role           @default(USER) //Роль пользователя по умолчанию USER
+  //Связи с другими таблицами Many to Many
+  deals          Deal[] //Список сделок пользователя
+  sessions       Session[] //Список сессий пользователя
+  oAuth          Oauth[] //Список OAuth провайдеров пользователя
+  viewedProducts ProductViews[] //Список просмотренных продуктов
+  favorite       Favorite[] //Список избранных продуктов
 }
 
 model Product {
   id                Int               @id @default(autoincrement())
-  name              String
-  description       String?
-  price             Decimal           @db.Decimal(10, 2)
-  currency          Currency          @default(RUB)
-  createdAt         DateTime          @default(now()) @map("created_at")
-  updatedAt         DateTime?         @updatedAt @map("updated_at")
-  deletedAt         DateTime?         @map("deleted_at")
-  is_active         Boolean           @default(true) @map("is_active")
-  deals             Deal[]
-  productImages     productImage[]
-  category          Category[]
-  viewedProducts    ProductViews[]
-  favorite          Favorite[]
-  productCategories ProductCategory[]
+  name              String //Название продукта
+  description       String? //Описание продукта
+  price             Decimal           @db.Decimal(10, 2) //Цена продукта
+  currency          Currency          @default(RUB) //Валюта цены по умолчанию RUB
+  createdAt         DateTime          @default(now()) @map("created_at") //Дата создания продукта
+  updatedAt         DateTime?         @updatedAt @map("updated_at") //Дата обновления продукта
+  deletedAt         DateTime?         @map("deleted_at") //Дата удаления продукта
+  is_active         Boolean           @default(true) @map("is_active") //Статус активности продукта
+  //Связи с другими таблицами Many to Many
+  deals             Deal[] //Список сделок продукта           
+  productImages     productImage[] //Список изображений продукта 
+  viewedProducts    ProductViews[] //Список пользователей, которые просмотрели продукт
+  favorite          Favorite[] //Список пользователей, которые добавили продукт в избранное
+  productCategories ProductCategory[] //Список категорий, к которым относится продукт
 }
 
 model Deal {
@@ -113,7 +120,6 @@ model Category {
   createdAt         DateTime          @default(now()) @map("created_at")
   updatedAt         DateTime?         @updatedAt @map("updated_at")
   deletedAt         DateTime?         @map("deleted_at")
-  products          Product[]
   productCategories ProductCategory[]
 }
 
