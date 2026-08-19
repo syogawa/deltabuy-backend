@@ -34,68 +34,69 @@ enum DealStatus {
 
 //Таблица пользователя
 model User {
-  id             Int            @id @default(autoincrement()) //Первичный ключ
-  name           String //Имя пользователя
-  avatar         String? //URL Аватар пользователя
-  email          String         @unique //Email пользователя
-  password       String //Пароль пользователя в хэшированном виде
-  createdAt      DateTime       @default(now()) @map("created_at") //Дата создания пользователя
-  deletedAt      DateTime?      @map("deleted_at") //Дата удаления пользователя возможнен null
-  role           Role           @default(USER) //Роль пользователя по умолчанию USER
+  id             Int            @id @default(autoincrement())                      //Первичный ключ
+  name           String                                                           //Имя пользователя
+  avatar         String?                                                            //URL Аватар пользователя
+  email          String         @unique                                                //Email пользователя
+  password       String                                                                //Пароль пользователя в хэшированном виде
+  createdAt      DateTime       @default(now()) @map("created_at")                    //Дата создания пользователя
+  deletedAt      DateTime?      @map("deleted_at")                                    //Дата удаления пользователя возможнен null
+  role           Role           @default(USER)                                      //Роль пользователя по умолчанию USER
   //Связи с другими таблицами Many to Many
-  deals          Deal[] //Список сделок пользователя
-  sessions       Session[] //Список сессий пользователя
-  oAuth          Oauth[] //Список OAuth провайдеров пользователя
-  viewedProducts ProductViews[] //Список просмотренных продуктов
-  favorite       Favorite[] //Список избранных продуктов
+  deals          Deal[]                                                             //Список сделок пользователя
+  sessions       Session[]                                                              //Список сессий пользователя
+  oAuth          Oauth[]                                                                 //Список OAuth провайдеров пользователя
+  viewedProducts ProductViews[]                                                           //Список просмотренных продуктов
+  favorite       Favorite[]                                                             //Список избранных продуктов
 }
 
 model Product {
   id                Int               @id @default(autoincrement())
-  name              String //Название продукта
-  description       String? //Описание продукта
-  price             Decimal           @db.Decimal(10, 2) //Цена продукта
-  currency          Currency          @default(RUB) //Валюта цены по умолчанию RUB
-  createdAt         DateTime          @default(now()) @map("created_at") //Дата создания продукта
-  updatedAt         DateTime?         @updatedAt @map("updated_at") //Дата обновления продукта   возможен null
-  deletedAt         DateTime?         @map("deleted_at") //Дата удаления продукта   возможен null
-  is_active         Boolean           @default(true) @map("is_active") //Статус активности продукта
+  name              String                                                                        //Название продукта
+  description       String?                                                                        //Описание продукта
+  price             Decimal           @db.Decimal(10, 2)                                          //Цена продукта
+  currency          Currency          @default(RUB)                                                //Валюта цены по умолчанию RUB
+  createdAt         DateTime          @default(now()) @map("created_at")                           //Дата создания продукта
+  updatedAt         DateTime?         @updatedAt @map("updated_at")                               //Дата обновления продукта   возможен null
+  deletedAt         DateTime?         @map("deleted_at")                                          //Дата удаления продукта   возможен null
+  is_active         Boolean           @default(true) @map("is_active")                              //Статус активности продукта
   //Связи с другими таблицами Many to Many
-  deals             Deal[] //Список сделок продукта           
-  productImages     productImage[] //Список изображений продукта 
-  viewedProducts    ProductViews[] //Список пользователей, которые просмотрели продукт
-  favorite          Favorite[] //Список пользователей, которые добавили продукт в избранное
-  productCategories ProductCategory[] //Список категорий, к которым относится продукт
+  deals             Deal[]                                  //Список сделок продукта           
+  productImages     productImage[]                           //Список изображений продукта 
+  viewedProducts    ProductViews[]                           //Список пользователей, которые просмотрели продукт
+  favorite          Favorite[]                              //Список пользователей, которые добавили продукт в избранное
+  productCategories ProductCategory[]                      //Список категорий, к которым относится продукт
 }
 
 model Deal {
-  id        Int        @id @default(autoincrement())    //первичный ключ 
-  userId    Int        @map("user_id")     //айди пользователя внешний ключ
-  productId Int        @map("product_id")  //айди продукта  внешний ключ
-  status    DealStatus @default(PAID)      //статус сделки
-  createdAt DateTime   @default(now()) @map("created_at") //когда создано
-  deletedAt DateTime?  @map("deleted_at") //когда удалено возможен null
+  id        Int        @id @default(autoincrement())        //первичный ключ 
+  userId    Int        @map("user_id")                      //айди пользователя внешний ключ
+  productId Int        @map("product_id")                   //айди продукта  внешний ключ
+  status    DealStatus @default(PAID)                       //статус сделки
+  createdAt DateTime   @default(now()) @map("created_at")   //когда создано
+  deletedAt DateTime?  @map("deleted_at")                   //когда удалено возможен null
   //Связи с другими таблицами Many to Many
   user    User    @relation(fields: [userId], references: [id])    
   product Product @relation(fields: [productId], references: [id])
 }
 
 model Session {
-  id           Int      @id @default(autoincrement())  //первичный ключ айди
-  userId       Int      @map("user_id")  //внешний ключ юзер айди
-  refreshToken String   @unique @map("refresh_token") //рефреш токен
-  createdAt    DateTime @default(now()) @map("created_at") // когда создана сессия
-  expiresAt    DateTime @map("expires_at")  //когда закончится refresh токен
+  id                Int        @id @default(autoincrement())             //первичный ключ айди
+  userId            Int        @map("user_id")                           //внешний ключ юзер айди
+  refreshTokenHash  String     @unique @map("refresh_token")             //рефреш токен hash
+  createdAt         DateTime   @default(now()) @map("created_at")        // когда создана сессия
+  expiresAt         DateTime   @map("expires_at")                        //когда закончится refresh токен
+  lastUsedAt        DateTime   @map("last_used") @updatedAt              //когда последний раз была использована сессия
   //Связи с другими таблицами Many to Many
   user User @relation(fields: [userId], references: [id])  
 }
 
 model Oauth {
-  id         Int      @id @default(autoincrement())  //первичный ключ айди
-  userId     Int      @map("user_id")         //внешний ключ юзер айди
-  provider   String   //название привявзанной соцсети
-  providerId String   @map("provider_id") //айди привязанной соцсети
-  createdAt  DateTime @default(now()) @map("created_at") //когда создана привязка
+  id         Int      @id @default(autoincrement())       //первичный ключ айди
+  userId     Int      @map("user_id")                     //внешний ключ юзер айди
+  provider   String                                       //название привявзанной соцсети
+  providerId String   @map("provider_id")                 //айди привязанной соцсети
+  createdAt  DateTime @default(now()) @map("created_at")  //когда создана привязка
   //Связи с другими таблицами Many to Many
   user User @relation(fields: [userId], references: [id])
 
@@ -105,9 +106,9 @@ model Oauth {
 
 model productImage {
   id        Int    @id @default(autoincrement())  //первичный ключ айди
-  productId Int    @map("product_id") //айди продукта  внешний ключ
-  url       String //дорога до изображения
-  position  Int    @default(0)  //позиция изображения
+  productId Int    @map("product_id")             //айди продукта  внешний ключ
+  url       String                                //дорога до изображения
+  position  Int    @default(0)                    //позиция изображения
   //Связи с другими таблицами Many to Many
   product Product @relation(fields: [productId], references: [id])
   //название таблицы в базе данных
