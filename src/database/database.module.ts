@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
-import { DatabaseController } from './database.controller';
-import { DatabaseService } from './database.service';
+import { Global, Module } from "@nestjs/common";
+import { DatabaseController } from "./database.controller";
+import { DatabaseService } from "./database.service";
 
+@Global()
 @Module({
   controllers: [DatabaseController],
-  providers: [DatabaseService]
+  providers: [DatabaseService],
 })
 export class DatabaseModule {}

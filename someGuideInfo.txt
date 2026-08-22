@@ -22,3 +22,4 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 npm run start:dev  | по своей сути это замена nodemon, при измении какого-либо файла или кусочка кода быстро перезапускает все
 npx prisma migrate dev --name (name of migrate) | для того чтобы создать новую миграцию
 npx prisma generate | для регенрации миграций
+nest g res (name of resourse) | имя ресурса что хочешь создать это module + controller + service + dto

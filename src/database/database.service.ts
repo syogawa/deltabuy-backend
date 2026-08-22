@@ -11,7 +11,10 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const user = await prisma.user.findMany();
+  let user = await prisma.user.findMany();
+  user = await prisma.user.create({
+    data: {},
+  });
   console.log(user);
 }
 
