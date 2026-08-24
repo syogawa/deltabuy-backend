@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { PrismaClient } from "../../generated/prisma/client";
 
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -10,21 +10,16 @@ const adapter = new PrismaPg({
 
 const prisma = new PrismaClient({ adapter });
 
-async function main() {
-  let user = await prisma.user.findMany();
-  user = await prisma.user.create({
-    data: {},
-  });
-  console.log(user);
-}
-
-main()
-  .catch((e) => {
-    console.error(e.message);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
-
 @Injectable()
-export class DatabaseService {}
+export class DatabaseService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
+  async onModuleInit() {
+    await this.$connect();
+  }
+
+  async onModuleDestroy() {
+    await this.$disconnect();
+  }
+}
