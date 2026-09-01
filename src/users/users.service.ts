@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  NotFoundException,
+  Injectable,
+} from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { DatabaseService } from "../database/database.service";
@@ -7,17 +11,20 @@ import { DatabaseService } from "../database/database.service";
 export class UsersService {
   constructor(private readonly db: DatabaseService) {}
 
-  async create(dto: CreateUserDto) {
-    const existingUser = await this.db.user.findFirst({
+  async findOneByMail(dto: CreateUserDto) {
+    //поиск юзера по почте
+    const user = await this.db.user.findFirst({
       where: { email: dto.email },
     });
-
-    if (existingUser) {
-      throw new BadRequestException(
-        "Пользователь с таким email уже существует",
-      );
+    //возврат юзера
+    if (user) {
+      return "Пользователь с таким email уже существует";
     }
+    //Если пользователь не найден
+    throw new NotFoundException();
+  }
 
+  async create(dto: CreateUserDto) {
     return this.db.user.create({
       data: {
         email: dto.email,
