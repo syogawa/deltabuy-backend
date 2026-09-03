@@ -1,16 +1,19 @@
 import {
   BadRequestException,
+  Injectable,
+  Res,
   NotFoundException,
   ConflictException,
-  Injectable,
-  ConfigurableModuleBuilder,
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { DatabaseService } from "../database/database.service";
 import { User } from "../../generated/prisma/client";
-import * as bcrypto from "bcrypt";
-import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from "bcrypt";
+import * as jwt from "@nestjs/passport";
+
+//settings
+const saltRounds = 10;
 
 @Injectable()
 export class UsersService {
@@ -23,23 +26,21 @@ export class UsersService {
     });
   }
 
-  async create(dto: CreateUserDto) {
+  //Регистрация пользователя / Создание
+  async create(dto: CreateUserDto): Promise<any> {
     const existing = await this.findOneByMail(dto.email);
     if (existing) {
       throw new ConflictException("Пользователь с таким email уже существует");
     }
 
-    //settings
-    const saltRounds = 10;
-
     //getting hashed password
-    const hashedPassword = bcrypto.hash(dto.password, saltRounds);
+    const hashedPassword = await bcrypt.hash(dto.password, saltRounds);
 
-    this.db.user.create({
+    return this.db.user.create({
       data: {
         email: dto.email,
         name: dto.name,
-        password: dto.password,
+        password: hashedPassword,
       },
     });
   }
