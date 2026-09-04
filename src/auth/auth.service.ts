@@ -1,26 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { ConflictException, Injectable } from "@nestjs/common";
+import { DatabaseService } from "../database/database.service";
+import { CreateAuthDto } from "./dto/create-auth.dto";
+import * as bcrypt from "bcrypt";
+import * as jwt from "@nestjs/passport";
+import { UsersService } from "../users/users.service";
+
+//settings
+const saltRounds = 10;
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+  constructor(private readonly userService: UsersService) {}
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async register(dto: CreateAuthDto): Promise<any> {
+    const existing = await this.userService.findOneByMail(dto.email);
+    if (existing) {
+      throw new ConflictException("Пользователь с таким email уже существует");
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    //getting hashed password
+    const hashedPassword = await bcrypt.hash(dto.password, saltRounds);
+    const userData = {
+      email: dto.email,
+      name: dto.name,
+      hashedPassword: hashedPassword,
+    };
+    await this.userService.create(userData);
   }
 }

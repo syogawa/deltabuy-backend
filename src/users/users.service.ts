@@ -1,19 +1,13 @@
-import {
-  BadRequestException,
-  Injectable,
-  Res,
-  NotFoundException,
-  ConflictException,
-} from "@nestjs/common";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
+import { Injectable } from "@nestjs/common";
+// import { UpdateUserDto } from "./dto/update-user.dto";
 import { DatabaseService } from "../database/database.service";
 import { User } from "../../generated/prisma/client";
-import * as bcrypt from "bcrypt";
-import * as jwt from "@nestjs/passport";
 
-//settings
-const saltRounds = 10;
+type UserRegisterData = {
+  name: string;
+  email: string;
+  hashedPassword: string;
+};
 
 @Injectable()
 export class UsersService {
@@ -27,20 +21,12 @@ export class UsersService {
   }
 
   //Регистрация пользователя / Создание
-  async create(dto: CreateUserDto): Promise<any> {
-    const existing = await this.findOneByMail(dto.email);
-    if (existing) {
-      throw new ConflictException("Пользователь с таким email уже существует");
-    }
-
-    //getting hashed password
-    const hashedPassword = await bcrypt.hash(dto.password, saltRounds);
-
+  async create(userData: UserRegisterData): Promise<User> {
     return this.db.user.create({
       data: {
-        email: dto.email,
-        name: dto.name,
-        password: hashedPassword,
+        email: userData.email,
+        name: userData.name,
+        password: userData.hashedPassword,
       },
     });
   }
@@ -52,11 +38,11 @@ export class UsersService {
   findOne(id: number) {
     return `This action returns a #${id} user`;
   }
-
+  /*
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
-
+*/
   remove(id: number) {
     return `This action removes a #${id} user`;
   }
