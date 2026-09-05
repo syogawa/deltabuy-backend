@@ -6,7 +6,7 @@ import {
   Body,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { CreateAuthDto } from "./dto/create-auth.dto";
+import { RegisterAuthDto } from "./dto/reg-auth";
 
 @Controller("auth")
 export class AuthController {
@@ -14,7 +14,7 @@ export class AuthController {
 
   @UsePipes(new ValidationPipe())
   @Post("reg")
-  async register(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.register(createAuthDto);
+  async register(@Body() RegisterAuthDto: RegisterAuthDto) {
+    return this.authService.register(RegisterAuthDto);
   }
 }

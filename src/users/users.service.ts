@@ -6,7 +6,7 @@ import { User } from "../../generated/prisma/client";
 type UserRegisterData = {
   name: string;
   email: string;
-  hashedPassword: string;
+  password: string;
 };
 
 @Injectable()
@@ -26,7 +26,7 @@ export class UsersService {
       data: {
         email: userData.email,
         name: userData.name,
-        password: userData.hashedPassword,
+        password: userData.password,
       },
     });
   }

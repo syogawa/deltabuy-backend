@@ -9,11 +9,11 @@ export class UsersController {
 
   @Get("mail/:mail")
   async findUser(@Param("mail") mail: string) {
-    const re = await this.usersService.findOneByMail(mail);
-    if (!re) {
+    const res = await this.usersService.findOneByMail(mail);
+    if (!res) {
       return "nothing";
     }
-    return `success!, ${re.name}`;
+    return res;
   }
 
   @Get()
