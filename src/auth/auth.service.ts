@@ -1,22 +1,28 @@
 import {
   BadRequestException,
+  Body,
   ConflictException,
   Injectable,
+  Req,
+  UnauthorizedException,
 } from "@nestjs/common";
-import { DatabaseService } from "../database/database.service";
 import { RegisterAuthDto } from "./dto/reg-auth";
 import * as bcrypt from "bcrypt";
-import * as jwt from "@nestjs/passport";
+import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "../users/users.service";
 import { User } from "../../generated/prisma/client";
 import { LoginAuthDto } from "./dto/login-auth.dto";
-
+import "dotenv/config";
+import express from "express";
 //settings
 const saltRounds = 10;
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UsersService) {}
+  constructor(
+    private readonly userService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
   async register(dto: RegisterAuthDto): Promise<void> {
     const existing = await this.userService.findOneByMail(dto.email);
@@ -33,10 +39,10 @@ export class AuthService {
     await this.userService.create(userData);
   }
 
-  async login(dto: LoginAuthDto): Promise<User> {
+  async login(@Body() dto: LoginAuthDto, res: express.Response): Promise<User> {
     const user = await this.userService.findOneByMail(dto.email);
     if (!user) {
-      throw new ConflictException("Пользователь не найден");
+      throw new ConflictException("Пользователь не найден!");
     }
 
     const userLoginData: LoginAuthDto = {
@@ -53,12 +59,24 @@ export class AuthService {
       throw new BadRequestException("Неверный логин или пароль!");
     }
 
-    /*
-    Логика токена и сохранения его в куки тд тп -_-
+    const payload = { userId: user.id, email: user.email };
 
-    return {'jwt': jwtToken};
-    */
+    const accessToken = await this.jwtService.sign(payload, {
+      expiresIn: "15m",
+    });
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: "30d",
+    });
+
+    res.cookie("user", refreshToken, {
+      secure: true,
+      httpOnly: true,
+    });
 
     return user; //temporary
+  }
+
+  async getAccessToken(@Req() req: Request): Promise<any> {
+    const user = req.cookies.user;
   }
 }
