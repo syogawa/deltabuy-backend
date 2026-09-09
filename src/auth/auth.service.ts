@@ -39,44 +39,24 @@ export class AuthService {
     await this.userService.create(userData);
   }
 
-  async login(@Body() dto: LoginAuthDto, res: express.Response): Promise<User> {
+  async login(
+    dto: LoginAuthDto,
+  ): Promise<{ user: User; refreshToken: string }> {
     const user = await this.userService.findOneByMail(dto.email);
     if (!user) {
       throw new ConflictException("Пользователь не найден!");
     }
 
-    const userLoginData: LoginAuthDto = {
-      email: dto.email,
-      password: dto.password,
-    };
-
-    const isPassValid = await bcrypt.compare(
-      userLoginData.password,
-      user.password,
-    );
-
+    const isPassValid = await bcrypt.compare(dto.password, user.password);
     if (!isPassValid) {
       throw new BadRequestException("Неверный логин или пароль!");
     }
 
     const payload = { userId: user.id, email: user.email };
-
-    const accessToken = await this.jwtService.sign(payload, {
-      expiresIn: "15m",
-    });
     const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: "30d",
     });
 
-    res.cookie("user", refreshToken, {
-      secure: true,
-      httpOnly: true,
-    });
-
-    return user; //temporary
-  }
-
-  async getAccessToken(@Req() req: Request): Promise<any> {
-    const user = req.cookies.user;
+    return { user, refreshToken };
   }
 }
