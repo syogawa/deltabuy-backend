@@ -13,6 +13,8 @@ import { RegisterAuthDto } from "./dto/reg-auth";
 import { LoginAuthDto } from "./dto/login-auth.dto";
 import { User } from "../../generated/prisma/client";
 import express from "express";
+import { Throttle } from "@nestjs/throttler";
+
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -24,6 +26,7 @@ export class AuthController {
   }
 
   @UsePipes(new ValidationPipe())
+  @Throttle({ auth: { limit: 5, ttl: 300000 } })
   @Post("login")
   async login(
     @Body() loginAuthDto: LoginAuthDto,
@@ -33,11 +36,11 @@ export class AuthController {
     res.cookie("user", refreshToken, {
       secure: true,
       httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000, // лучше добавить
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     return { user, refreshToken };
   }
-
+  @Throttle({ auth: { limit: 5, ttl: 300000 } })
   @Get("my-token")
   async getToken(@Req() req: express.Request) {
     const user = req.cookies.user;

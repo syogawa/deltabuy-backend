@@ -14,6 +14,7 @@ import { User } from "../../generated/prisma/client";
 import { LoginAuthDto } from "./dto/login-auth.dto";
 import "dotenv/config";
 import express from "express";
+import { DatabaseService } from "../database/database.service";
 //settings
 const saltRounds = 10;
 
@@ -22,6 +23,7 @@ export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private jwtService: JwtService,
+    private readonly db: DatabaseService,
   ) {}
 
   async register(dto: RegisterAuthDto): Promise<void> {
@@ -55,6 +57,15 @@ export class AuthService {
     const payload = { userId: user.id, email: user.email };
     const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: "30d",
+    });
+
+    //Создание ячейка сессия в таблица sessions
+    await this.db.session.create({
+      data: {
+        userId: user.id,
+        refreshTokenHash: refreshToken,
+        expiresAt: new Date(Date.now() + 30 * 1000 * 60 * 60 * 24), //+30 days
+      },
     });
 
     return { user, refreshToken };

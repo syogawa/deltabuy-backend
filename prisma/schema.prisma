@@ -41,6 +41,7 @@ model User {
   password       String                                                                //Пароль пользователя в хэшированном виде
   createdAt      DateTime       @default(now()) @map("created_at")                    //Дата создания пользователя
   deletedAt      DateTime?      @map("deleted_at")                                    //Дата удаления пользователя возможнен null
+  isActive       Boolean        @map("is_active") @default(true)                      //Статус аккаунта удален ли он или активен
   role           Role           @default(USER)                                      //Роль пользователя по умолчанию USER
   //Связи с другими таблицами Many to Many
   deals          Deal[]                                                             //Список сделок пользователя
@@ -84,6 +85,7 @@ model Session {
   id                Int        @id @default(autoincrement())             //первичный ключ айди
   userId            Int        @map("user_id")                           //внешний ключ юзер айди
   refreshTokenHash  String     @unique @map("refresh_token")             //рефреш токен hash
+  isActive          Boolean    @default(true)
   createdAt         DateTime   @default(now()) @map("created_at")        // когда создана сессия
   expiresAt         DateTime   @map("expires_at")                        //когда закончится refresh токен
   lastUsedAt        DateTime   @map("last_used") @updatedAt              //когда последний раз была использована сессия
