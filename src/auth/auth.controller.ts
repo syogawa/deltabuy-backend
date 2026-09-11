@@ -26,7 +26,6 @@ export class AuthController {
   }
 
   @UsePipes(new ValidationPipe())
-  @Throttle({ auth: { limit: 5, ttl: 300000 } })
   @Post("login")
   async login(
     @Body() loginAuthDto: LoginAuthDto,
@@ -40,10 +39,10 @@ export class AuthController {
     });
     return { user, refreshToken };
   }
-  @Throttle({ auth: { limit: 5, ttl: 300000 } })
-  @Get("my-token")
+  @Get("check-auth")
   async getToken(@Req() req: express.Request) {
-    const user = req.cookies.user;
-    return user;
+    const refreshToken = req.cookies.user;
+    return this.authService.checkAuth(refreshToken);
+    // return user;
   }
 }

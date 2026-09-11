@@ -13,10 +13,11 @@ import { UsersService } from "../users/users.service";
 import { User } from "../../generated/prisma/client";
 import { LoginAuthDto } from "./dto/login-auth.dto";
 import "dotenv/config";
-import express from "express";
 import { DatabaseService } from "../database/database.service";
+
 //settings
 const saltRounds = 10;
+const secretKey = process.env.JWT_SECRET!;
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,7 @@ export class AuthService {
     private readonly db: DatabaseService,
   ) {}
 
+  //                      REGISTRATION
   async register(dto: RegisterAuthDto): Promise<void> {
     const existing = await this.userService.findOneByMail(dto.email);
     if (existing) {
@@ -41,6 +43,7 @@ export class AuthService {
     await this.userService.create(userData);
   }
 
+  //                       LOGIN
   async login(
     dto: LoginAuthDto,
   ): Promise<{ user: User; refreshToken: string }> {
@@ -69,5 +72,10 @@ export class AuthService {
     });
 
     return { user, refreshToken };
+  }
+
+  async checkAuth(refreshToken) {
+    const decoded = this.jwtService.verify(refreshToken);
+    return decoded;
   }
 }

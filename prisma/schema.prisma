@@ -56,6 +56,7 @@ model Product {
   name              String                                                                        //Название продукта
   description       String?                                                                        //Описание продукта
   price             Decimal           @db.Decimal(10, 2)                                          //Цена продукта
+  sellerId          Int               @map("seller_id")                                            //Айди продавца
   currency          Currency          @default(RUB)                                                //Валюта цены по умолчанию RUB
   createdAt         DateTime          @default(now()) @map("created_at")                           //Дата создания продукта
   updatedAt         DateTime?         @updatedAt @map("updated_at")                               //Дата обновления продукта   возможен null

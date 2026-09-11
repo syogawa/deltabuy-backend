@@ -1,19 +1,28 @@
-import { Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { Injectable } from "@nestjs/common";
+import { CreateProductDto } from "./dto/create-product.dto";
+import { UpdateProductDto } from "./dto/update-product.dto";
+import { DatabaseService } from "../database/database.service";
 
 @Injectable()
 export class ProductService {
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
-  }
+  constructor(private readonly db: DatabaseService) {}
 
+  async create(createProductDto: CreateProductDto): Promise<void> {
+    await this.db.product.create({
+      data: {
+        name: createProductDto.name,
+        price: createProductDto.price,
+        description: createProductDto.description,
+        sellerId: 1,
+      },
+    });
+  }
   findAll() {
     return `This action returns all product`;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} product`;
+    return this.db.product.findFirst({ where: { id } });
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
