@@ -27,8 +27,8 @@ export class ProductController {
     @Req() req: express.Request,
   ) {
     if (req.cookies?.user) {
-      return this.productService.create(createProductDto);
-      // return req.cookies?.user;
+      // return this.productService.create(createProductDto);
+      return req.cookies?.user;
     } else {
       throw new BadRequestException("You should login first!");
     }

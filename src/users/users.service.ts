@@ -35,7 +35,7 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
+  findOneById(id: number) {
     return this.db.user.findUnique({ where: { id } });
   }
   /*
