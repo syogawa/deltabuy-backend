@@ -79,6 +79,7 @@ export class AuthController {
   }
 
   @Post("logout")
+  @HttpCode(200)
   async logout(
     @Req() req: express.Request,
     @Res({ passthrough: true }) res: express.Response,
