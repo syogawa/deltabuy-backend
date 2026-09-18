@@ -32,14 +32,15 @@ export class AuthController {
   async login(
     @Body() loginAuthDto: LoginAuthDto,
     @Res({ passthrough: true }) res: express.Response,
-  ): Promise<{ user: User }> {
-    const { user, refreshToken } = await this.authService.login(loginAuthDto);
+  ): Promise<{ user: User; accessToken: string }> {
+    const { user, refreshToken, accessToken } =
+      await this.authService.login(loginAuthDto);
     res.cookie("refresToken", refreshToken, {
       secure: true,
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-    return { user };
+    return { user, accessToken };
   }
   @Get("check-auth")
   async getToken(@Req() req: express.Request) {

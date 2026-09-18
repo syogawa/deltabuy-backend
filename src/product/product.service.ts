@@ -7,13 +7,16 @@ import { DatabaseService } from "../database/database.service";
 export class ProductService {
   constructor(private readonly db: DatabaseService) {}
 
-  async create(createProductDto: CreateProductDto): Promise<void> {
+  async create(
+    createProductDto: CreateProductDto,
+    userId: number,
+  ): Promise<void> {
     await this.db.product.create({
       data: {
         name: createProductDto.name,
         price: createProductDto.price,
         description: createProductDto.description,
-        sellerId: 1,
+        sellerId: userId,
       },
     });
   }

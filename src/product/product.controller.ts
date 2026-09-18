@@ -8,6 +8,7 @@ import {
   Delete,
   BadRequestException,
   Req,
+  UseGuards,
 } from "@nestjs/common";
 import { ProductService } from "./product.service";
 import { CreateProductDto } from "./dto/create-product.dto";
@@ -15,6 +16,7 @@ import { UpdateProductDto } from "./dto/update-product.dto";
 import { SkipThrottle } from "@nestjs/throttler";
 import { AuthController } from "../auth/auth.controller";
 import * as express from "express";
+import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
 
 @SkipThrottle({ auth: true })
 @Controller("product")
@@ -22,16 +24,15 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post("create")
+  @UseGuards(AccessTokenGuard)
   async create(
     @Body() createProductDto: CreateProductDto,
-    @Req() req: express.Request,
+    @Req() req: Request,
   ) {
-    if (req.cookies?.user) {
-      // return this.productService.create(createProductDto);
-      return req.cookies?.user;
-    } else {
-      throw new BadRequestException("You should login first!");
-    }
+    const user = req["user"];
+    await this.productService.create(createProductDto, user.userId);
+
+    return "product was created";
   }
 
   @Get()

@@ -1,4 +1,12 @@
-import { Controller, Get, Body, Patch, Param, Delete } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ConflictException,
+} from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { SkipThrottle } from "@nestjs/throttler";
 // import { CreateUserDto } from "./dto/create-user.dto";
@@ -13,7 +21,7 @@ export class UsersController {
   async findUser(@Param("mail") mail: string) {
     const res = await this.usersService.findOneByMail(mail);
     if (!res) {
-      return "nothing";
+      throw new ConflictException("User not found!");
     }
     return res;
   }

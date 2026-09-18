@@ -50,7 +50,7 @@ export class AuthService {
   //                       LOGIN
   async login(
     dto: LoginAuthDto,
-  ): Promise<{ user: User; refreshToken: string }> {
+  ): Promise<{ user: User; refreshToken: string; accessToken: string }> {
     const user = await this.userService.findOneByMail(dto.email);
     if (!user) {
       throw new ConflictException("Пользователь не найден!");
@@ -65,7 +65,9 @@ export class AuthService {
     const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: "30d",
     });
-
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: "15m",
+    });
     //Создание ячейки сессия в таблица sessions
     await this.db.session.create({
       data: {
@@ -75,7 +77,7 @@ export class AuthService {
       },
     });
 
-    return { user, refreshToken };
+    return { user, refreshToken, accessToken };
   }
 
   //                       CHECK AUTH
@@ -150,5 +152,27 @@ export class AuthService {
         isActive: false,
       },
     });
+  }
+
+  // VALIDATE ACCESS TOKEN FOR GUARD
+  async validateAccessToken(accessToken: string) {
+    return this.jwtService.verify(accessToken);
+  }
+
+  // VALIDATE REFRESH TOKEN FOR GUARD
+  async validateRefreshToken(refreshToken: string) {
+    const payload = this.jwtService.verify(refreshToken);
+
+    const session = await this.db.session.findFirst({
+      where: {
+        refreshTokenHash: hashToken(refreshToken),
+      },
+    });
+
+    if (!session || !session.isActive || session.expiresAt < new Date()) {
+      throw new UnauthorizedException("Сессия недействительна");
+    }
+
+    return payload;
   }
 }
