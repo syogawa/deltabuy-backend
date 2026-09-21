@@ -20,19 +20,30 @@ export class ProductService {
       },
     });
   }
-  findAll() {
-    return `This action returns all product`;
-  }
+  // findAll() {
+  //   return `This action returns all product`;
+  // }
 
   findOne(id: number) {
     return this.db.product.findFirst({ where: { id } });
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    await this.db.product.updateMany({
+      where: { id: id },
+      data: {
+        is_active: updateProductDto.isActive,
+        price: updateProductDto.price,
+        name: updateProductDto.name,
+        description: updateProductDto.description,
+      },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number) {
+    await this.db.product.updateMany({
+      where: { id: id },
+      data: { hidden: true },
+    });
   }
 }

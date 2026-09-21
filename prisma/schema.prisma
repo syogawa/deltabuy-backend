@@ -62,6 +62,8 @@ model Product {
   updatedAt         DateTime?         @updatedAt @map("updated_at")                               //Дата обновления продукта   возможен null
   deletedAt         DateTime?         @map("deleted_at")                                          //Дата удаления продукта   возможен null
   is_active         Boolean           @default(true) @map("is_active")                              //Статус активности продукта
+  hidden            Boolean           @default(false)                                               //Отображается ли продукт самому владельцу (для мягких удалений)
+  
   //Связи с другими таблицами Many to Many
   deals             Deal[]                                  //Список сделок продукта           
   productImages     productImage[]                           //Список изображений продукта 

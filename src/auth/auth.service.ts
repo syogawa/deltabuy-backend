@@ -16,7 +16,7 @@ import { createHash } from "crypto";
 
 //settings
 const saltRounds = 10;
-const secretKey = process.env.JWT_SECRET!;
+// const secretKey = process.env.JWT_SECRET!;
 
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
