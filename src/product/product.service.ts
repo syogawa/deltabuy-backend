@@ -32,13 +32,14 @@ export class ProductService {
     await this.db.product.updateMany({
       where: { id: id },
       data: {
-        is_active: updateProductDto.isActive,
         price: updateProductDto.price,
         name: updateProductDto.name,
         description: updateProductDto.description,
       },
     });
   }
+
+  async deactivate() {}
 
   async remove(id: number) {
     await this.db.product.updateMany({

@@ -10,9 +10,9 @@ import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "../users/users.service";
 import { User } from "../../generated/prisma/client";
 import { LoginAuthDto } from "./dto/login-auth.dto";
-import "dotenv/config";
 import { DatabaseService } from "../database/database.service";
 import { createHash } from "crypto";
+import { ConfigService } from "@nestjs/config";
 
 //settings
 const saltRounds = 10;
@@ -28,6 +28,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private jwtService: JwtService,
     private readonly db: DatabaseService,
+    private readonly config: ConfigService,
   ) {}
   // support function
 
@@ -67,6 +68,7 @@ export class AuthService {
     });
     const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: "15m",
+      secret: this.config.get<string>("JWT_ACCESS_SECRET"),
     });
     //Создание ячейки сессия в таблица sessions
     await this.db.session.create({
@@ -112,6 +114,7 @@ export class AuthService {
 
     const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: "15m",
+      secret: this.config.get<string>("JWT_ACCESS_SECRET"),
     });
 
     const newRefreshToken = await this.jwtService.signAsync(payload, {
@@ -156,7 +159,10 @@ export class AuthService {
 
   // VALIDATE ACCESS TOKEN FOR GUARD
   async validateAccessToken(accessToken: string) {
-    return this.jwtService.verify(accessToken);
+    const payload = await this.jwtService.verify(accessToken, {
+      secret: this.config.get<string>("JWT_ACCESS_SECRET"),
+    });
+    return payload;
   }
 
   // VALIDATE REFRESH TOKEN FOR GUARD

@@ -35,7 +35,7 @@ export class AuthController {
   ): Promise<{ user: User; accessToken: string }> {
     const { user, refreshToken, accessToken } =
       await this.authService.login(loginAuthDto);
-    res.cookie("refresToken", refreshToken, {
+    res.cookie("refreshToken", refreshToken, {
       secure: true,
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -44,7 +44,7 @@ export class AuthController {
   }
   @Get("check-auth")
   async getToken(@Req() req: express.Request) {
-    const refreshToken = req.cookies.user;
+    const refreshToken = req.cookies["refreshToken"];
     return this.authService.checkAuth(refreshToken);
   }
 

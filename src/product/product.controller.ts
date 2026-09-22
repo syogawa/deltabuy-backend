@@ -17,11 +17,26 @@ import { SkipThrottle } from "@nestjs/throttler";
 import { AuthController } from "../auth/auth.controller";
 import * as express from "express";
 import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
+import { ProductOwnershipGuard } from "./guards/ProductOwnershipGuard";
 
 @SkipThrottle({ auth: true })
 @Controller("product")
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
+
+  //=================================== ПУБЛИЧНЫЕ ЭНДПОИНТЫ ===================================
+
+  @Get()
+  findAll() {
+    // return this.productService.findAll();
+  }
+
+  @Get(":id")
+  findOne(@Param("id") id: string) {
+    return this.productService.findOne(+id);
+  }
+
+  //==================================== ЗАЩИЩЁННЫЕ ЭНДПОИНТЫ ==================================
 
   @Post("create")
   @UseGuards(AccessTokenGuard)
@@ -35,16 +50,7 @@ export class ProductController {
     return "product was created";
   }
 
-  @Get()
-  findAll() {
-    // return this.productService.findAll();
-  }
-
-  @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.productService.findOne(+id);
-  }
-
+  @UseGuards(AccessTokenGuard, ProductOwnershipGuard)
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productService.update(+id, updateProductDto);

@@ -6,17 +6,18 @@ import { JwtModule } from "@nestjs/jwt";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { DatabaseService } from "../database/database.service";
+import { AccessTokenGuard } from "./guards/AccessTokenGuard";
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, UsersService, DatabaseService],
+  providers: [AuthService, UsersService, DatabaseService, AccessTokenGuard],
   imports: [
     ConfigModule,
     ThrottlerModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>("JWT_SECRET"),
+        secret: config.get<string>("JWT_REFRESH_SECRET"),
         signOptions: {
           expiresIn: "30d",
         },
@@ -24,5 +25,6 @@ import { DatabaseService } from "../database/database.service";
       inject: [ConfigService],
     }),
   ],
+  exports: [AccessTokenGuard],
 })
 export class AuthModule {}
