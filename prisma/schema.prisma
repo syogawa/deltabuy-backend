@@ -38,6 +38,7 @@ model User {
   name           String                                                           //Имя пользователя
   avatar         String?                                                            //URL Аватар пользователя
   email          String         @unique                                                //Email пользователя
+  description    String?                                                               //Описание
   password       String                                                                //Пароль пользователя в хэшированном виде
   createdAt      DateTime       @default(now()) @map("created_at")                    //Дата создания пользователя
   deletedAt      DateTime?      @map("deleted_at")                                    //Дата удаления пользователя возможнен null

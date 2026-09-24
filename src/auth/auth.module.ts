@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { UsersService } from "../users/users.service";
@@ -7,13 +7,13 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { DatabaseService } from "../database/database.service";
 import { AccessTokenGuard } from "./guards/AccessTokenGuard";
+import { DatabaseModule } from "../database/database.module";
+import { UsersModule } from "../users/users.module";
 
 @Module({
-  controllers: [AuthController],
-  providers: [AuthService, UsersService, DatabaseService, AccessTokenGuard],
   imports: [
-    ConfigModule,
-    ThrottlerModule,
+    forwardRef(() => UsersModule),
+    DatabaseModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
@@ -25,6 +25,8 @@ import { AccessTokenGuard } from "./guards/AccessTokenGuard";
       inject: [ConfigService],
     }),
   ],
-  exports: [AccessTokenGuard],
+  controllers: [AuthController],
+  providers: [AuthService, AccessTokenGuard],
+  exports: [AuthService, AccessTokenGuard],
 })
 export class AuthModule {}

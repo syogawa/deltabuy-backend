@@ -6,16 +6,22 @@ import {
   Param,
   Delete,
   ConflictException,
+  UseGuards,
+  Req,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { SkipThrottle } from "@nestjs/throttler";
 // import { CreateUserDto } from "./dto/create-user.dto";
-// import { UpdateUserDto } from "./dto/update-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
 
 @SkipThrottle({ auth: true })
 @Controller("users")
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    // private readonly,
+  ) {}
 
   @Get("mail/:mail")
   async findUser(@Param("mail") mail: string) {
@@ -32,18 +38,21 @@ export class UsersController {
     return "something good";
   }
 
-  @Get(":id")
-  findOneById(@Param("id") id: string) {
-    return this.usersService.findOneById(+id);
-  }
+  // @Get(":id")
+  // findOneById(@Param("id") id: string) {
+  //   return this.usersService.findOneById(+id);
+  // }
 
-  /*
-  @Patch(":id")
-  update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @UseGuards(AccessTokenGuard)
+  @Get("me")
+  async getProfile(@Req() req) {
+    return this.usersService.getMe(req.user["userId"]);
   }
-
-  */
+  @UseGuards(AccessTokenGuard)
+  @Patch("me")
+  async updateProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.updateProfile(req.user["userId"], updateUserDto);
+  }
 
   @Delete(":id")
   remove(@Param("id") id: string) {

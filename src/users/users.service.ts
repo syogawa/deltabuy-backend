@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 // import { UpdateUserDto } from "./dto/update-user.dto";
 import { DatabaseService } from "../database/database.service";
 import { User } from "../../generated/prisma/client";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 type UserRegisterData = {
   name: string;
@@ -35,14 +36,25 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOneById(id: number) {
+  async findOneById(id: number) {
     return this.db.user.findUnique({ where: { id } });
   }
-  /*
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+
+  async updateProfile(id: number, updateUserDto: UpdateUserDto) {
+    return this.db.user.updateMany({
+      where: { id: id },
+      data: {
+        name: updateUserDto.name,
+        avatar: updateUserDto.avatar,
+        description: updateUserDto.description,
+      },
+    });
   }
-*/
+
+  async getMe(id: number) {
+    return this.db.user.findUnique({ where: { id } });
+  }
+
   remove(id: number) {
     return `This action removes a #${id} user`;
   }
