@@ -14,6 +14,7 @@ import { SkipThrottle } from "@nestjs/throttler";
 // import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
+import * as authRequestType from "../auth/types/auth-request.type";
 
 @SkipThrottle({ auth: true })
 @Controller("users")
@@ -45,17 +46,21 @@ export class UsersController {
 
   @UseGuards(AccessTokenGuard)
   @Get("me")
-  async getProfile(@Req() req) {
-    return this.usersService.getMe(req.user["userId"]);
+  async getProfile(@Req() req: authRequestType.AuthRequest) {
+    return this.usersService.getMe(req.user.id);
   }
   @UseGuards(AccessTokenGuard)
   @Patch("me")
-  async updateProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.updateProfile(req.user["userId"], updateUserDto);
+  async updateProfile(
+    @Req() req: authRequestType.AuthRequest,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.updateProfile(req.user.id, updateUserDto);
   }
 
-  @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.usersService.remove(+id);
+  @UseGuards(AccessTokenGuard)
+  @Delete("me")
+  remove(@Req() req: authRequestType.AuthRequest) {
+    return this.usersService.remove(req.user.id);
   }
 }

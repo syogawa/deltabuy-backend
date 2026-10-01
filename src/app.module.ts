@@ -8,6 +8,7 @@ import { ConfigModule } from "@nestjs/config";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { APP_GUARD } from "@nestjs/core";
 import { ProductModule } from "./product/product.module";
+import { BasketModule } from './basket/basket.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ProductModule } from "./product/product.module";
         },
       ],
     }),
+    BasketModule,
   ],
   controllers: [AppController],
   providers: [

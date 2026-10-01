@@ -50,6 +50,7 @@ model User {
   oAuth          Oauth[]                                                                 //Список OAuth провайдеров пользователя
   viewedProducts ProductViews[]                                                           //Список просмотренных продуктов
   favorite       Favorite[]                                                             //Список избранных продуктов
+  basket         Basket[]
 }
 
 model Product {
@@ -57,7 +58,9 @@ model Product {
   name              String                                                                        //Название продукта
   description       String?                                                                        //Описание продукта
   price             Decimal           @db.Decimal(10, 2)                                          //Цена продукта
+  salePrice         Decimal?          @db.Decimal(10, 2) @map("sale_price")                       //Цена продукта по скидке
   sellerId          Int               @map("seller_id")                                            //Айди продавца
+  quantity          Int               @default(1)                                                   //Количество
   currency          Currency          @default(RUB)                                                //Валюта цены по умолчанию RUB
   createdAt         DateTime          @default(now()) @map("created_at")                           //Дата создания продукта
   updatedAt         DateTime?         @updatedAt @map("updated_at")                               //Дата обновления продукта   возможен null
@@ -71,6 +74,7 @@ model Product {
   viewedProducts    ProductViews[]                           //Список пользователей, которые просмотрели продукт
   favorite          Favorite[]                              //Список пользователей, которые добавили продукт в избранное
   productCategories ProductCategory[]                      //Список категорий, к которым относится продукт
+  basket            Basket[]
 }
 
 model Deal {
@@ -167,4 +171,19 @@ model ProductCategory {
 
   @@id([productId, categoryId]) // составной первичный ключ
   @@map("product_category")     // название таблицы в БД
+}
+
+model Basket {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  quantity  Int      @default(1)            //Количество
+  hidden    Boolean  @default(false)        //Видно в корзине или нет
+  createdAt DateTime @default(now())        
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([userId, hidden])
 }

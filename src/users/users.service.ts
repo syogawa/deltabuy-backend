@@ -55,7 +55,10 @@ export class UsersService {
     return this.db.user.findUnique({ where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    return this.db.user.updateMany({
+      where: { id },
+      data: { isActive: false },
+    });
   }
 }

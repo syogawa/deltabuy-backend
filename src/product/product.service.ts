@@ -15,6 +15,7 @@ export class ProductService {
       data: {
         name: createProductDto.name,
         price: createProductDto.price,
+        salePrice: createProductDto.price,
         description: createProductDto.description,
         sellerId: userId,
       },
@@ -32,14 +33,26 @@ export class ProductService {
     await this.db.product.updateMany({
       where: { id: id },
       data: {
-        price: updateProductDto.price,
+        salePrice: updateProductDto.price,
         name: updateProductDto.name,
         description: updateProductDto.description,
       },
     });
   }
 
-  async deactivate() {}
+  async deactivate(id: number) {
+    await this.db.product.updateMany({
+      where: { id: id },
+      data: { is_active: false },
+    });
+  }
+
+  async activate(id: number) {
+    await this.db.product.updateMany({
+      where: { id: id },
+      data: { is_active: true },
+    });
+  }
 
   async remove(id: number) {
     await this.db.product.updateMany({

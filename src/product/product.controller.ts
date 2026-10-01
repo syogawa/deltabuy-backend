@@ -14,10 +14,11 @@ import { ProductService } from "./product.service";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { SkipThrottle } from "@nestjs/throttler";
-import { AuthController } from "../auth/auth.controller";
-import * as express from "express";
+// import { AuthController } from "../auth/auth.controller";
+// import * as express from "express";
 import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
 import { ProductOwnershipGuard } from "./guards/ProductOwnershipGuard";
+import * as authRequestType from "../auth/types/auth-request.type";
 
 @SkipThrottle({ auth: true })
 @Controller("product")
@@ -42,10 +43,9 @@ export class ProductController {
   @UseGuards(AccessTokenGuard)
   async create(
     @Body() createProductDto: CreateProductDto,
-    @Req() req: Request,
+    @Req() req: authRequestType.AuthRequest,
   ) {
-    const user = req["user"];
-    await this.productService.create(createProductDto, user.userId);
+    await this.productService.create(createProductDto, req.user.id);
 
     return "product was created";
   }
@@ -56,6 +56,7 @@ export class ProductController {
     return this.productService.update(+id, updateProductDto);
   }
 
+  @UseGuards(AccessTokenGuard, ProductOwnershipGuard)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.productService.remove(+id);
