@@ -45,9 +45,7 @@ export class ProductController {
     @Body() createProductDto: CreateProductDto,
     @Req() req: authRequestType.AuthRequest,
   ) {
-    await this.productService.create(createProductDto, req.user.id);
-
-    return "product was created";
+    return this.productService.create(createProductDto, req.user.id);
   }
 
   @UseGuards(AccessTokenGuard, ProductOwnershipGuard)

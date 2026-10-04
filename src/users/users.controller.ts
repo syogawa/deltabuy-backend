@@ -33,6 +33,13 @@ export class UsersController {
     return res;
   }
 
+  // ---------------NEED TO DO---------------------------------
+  @UseGuards(AccessTokenGuard)
+  @Patch("me/avatar")
+  async setAvatar(@Req() req: authRequestType.AuthRequest) {
+    return "SOON...";
+  }
+
   @Get()
   findAll() {
     // return this.usersService.findAll();

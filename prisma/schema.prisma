@@ -51,6 +51,10 @@ model User {
   viewedProducts ProductViews[]                                                           //Список просмотренных продуктов
   favorite       Favorite[]                                                             //Список избранных продуктов
   basket         Basket[]
+
+  
+
+  products Product[] @relation("SellerProducts")
 }
 
 model Product {
@@ -68,6 +72,7 @@ model Product {
   is_active         Boolean           @default(true) @map("is_active")                              //Статус активности продукта
   hidden            Boolean           @default(false)                                               //Отображается ли продукт самому владельцу (для мягких удалений)
   
+  seller User @relation("SellerProducts", fields: [sellerId], references: [id])
   //Связи с другими таблицами Many to Many
   deals             Deal[]                                  //Список сделок продукта           
   productImages     productImage[]                           //Список изображений продукта 
@@ -75,18 +80,29 @@ model Product {
   favorite          Favorite[]                              //Список пользователей, которые добавили продукт в избранное
   productCategories ProductCategory[]                      //Список категорий, к которым относится продукт
   basket            Basket[]
+
 }
 
 model Deal {
-  id        Int        @id @default(autoincrement())        //первичный ключ 
-  userId    Int        @map("user_id")                      //айди пользователя внешний ключ
-  productId Int        @map("product_id")                   //айди продукта  внешний ключ
-  status    DealStatus @default(PAID)                       //статус сделки
-  createdAt DateTime   @default(now()) @map("created_at")   //когда создано
-  deletedAt DateTime?  @map("deleted_at")                   //когда удалено возможен null
-  //Связи с другими таблицами Many to Many
-  user    User    @relation(fields: [userId], references: [id])    
+  id        Int        @id @default(autoincrement())
+  buyerId   Int        @map("buyer_id")
+  productId Int        @map("product_id")
+  status    DealStatus @default(PAID)
+  createdAt DateTime   @default(now()) @map("created_at")
+  deletedAt DateTime?  @map("deleted_at")
+
+  // Товар на момент покупки
+  quantity        Int                                          // сколько штук куплено
+  priceAtPurchase Decimal  @db.Decimal(10, 2) @map("price_at_purchase") // цена за штуку, которую реально заплатили
+  currency        Currency                                     // валюта на момент покупки
+  productSnapshot Json     @map("product_snapshot")            // name, description, картинки, категории и т.д.
+
+  buyer   User    @relation(fields: [buyerId], references: [id])
   product Product @relation(fields: [productId], references: [id])
+  
+
+  @@index([buyerId])
+  @@index([productId])
 }
 
 model Session {
@@ -135,6 +151,8 @@ model Category {
   
   // Связи
   productCategories ProductCategory[]                                 // many-to-many с товарами
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
 }
 
 model ProductViews {
@@ -175,15 +193,17 @@ model ProductCategory {
 
 model Basket {
   id        Int      @id @default(autoincrement())
-  userId    Int
-  productId Int
+  userId    Int      @map("user_id")
+  productId Int      @map("product_id")
   quantity  Int      @default(1)            //Количество
-  hidden    Boolean  @default(false)        //Видно в корзине или нет
-  createdAt DateTime @default(now())        
-  updatedAt DateTime @updatedAt
+  hidden    Boolean  @default(false)        //Отоброжается ли или нет
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
   @@index([userId, hidden])
+  @@unique([userId, productId])
+  @@map("basket")
 }
