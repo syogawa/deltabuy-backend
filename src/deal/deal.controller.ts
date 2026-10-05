@@ -5,24 +5,26 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
+  UseGuards,
+  Req,
 } from "@nestjs/common";
 import { DealService } from "./deal.service";
 import { CreateDealDto } from "./dto/create-deal.dto";
-import { UpdateDealDto } from "./dto/update-deal.dto";
+import { UpdateDealStatusDto } from "./dto/update-deal-status.dto";
+import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
+import * as authRequestType from "../auth/types/auth-request.type";
 
+@UseGuards(AccessTokenGuard)
 @Controller("deal")
 export class DealController {
   constructor(private readonly dealService: DealService) {}
 
   @Post()
-  create(@Body() createDealDto: CreateDealDto) {
-    return this.dealService.create(createDealDto);
-  }
-
-  @Get("")
-  findAll() {
-    return this.dealService.findAll();
+  create(
+    @Body() createDealDto: CreateDealDto,
+    @Req() req: authRequestType.AuthRequest,
+  ) {
+    return this.dealService.create(createDealDto, req.user.id);
   }
 
   @Get(":id")
@@ -31,12 +33,7 @@ export class DealController {
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updateDealDto: UpdateDealDto) {
-    return this.dealService.update(+id, updateDealDto);
-  }
-
-  @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.dealService.remove(+id);
+  update(@Param("id") id: string, @Body() updateDealDto: UpdateDealStatusDto) {
+    return this.dealService.updateStatus(+id, updateDealDto);
   }
 }

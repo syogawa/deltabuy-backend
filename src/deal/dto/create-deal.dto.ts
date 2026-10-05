@@ -1,8 +1,8 @@
-import { IsEnum, IsJSON, IsNumber, IsString } from "class-validator";
+import { IsEnum, IsInt, IsJSON, IsNumber, IsString } from "class-validator";
 import { Currency } from "../../../generated/prisma/enums";
 
 export class CreateDealDto {
-  @IsNumber()
+  @IsInt()
   quantity!: number;
 
   @IsJSON()
@@ -13,4 +13,7 @@ export class CreateDealDto {
 
   @IsEnum(Currency)
   currency!: Currency;
+
+  @IsInt()
+  productId!: number;
 }

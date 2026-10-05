@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { CreateDealDto } from "./dto/create-deal.dto";
-import { UpdateDealDto } from "./dto/update-deal.dto";
+import { UpdateDealStatusDto } from "./dto/update-deal-status.dto";
 import { DatabaseService } from "../database/database.service";
 import { Prisma } from "../../generated/prisma/client";
 
@@ -8,34 +8,27 @@ import { Prisma } from "../../generated/prisma/client";
 export class DealService {
   constructor(private readonly db: DatabaseService) {}
 
-  create(createDealDto: CreateDealDto, userId: number, productId: number) {
+  async create(createDealDto: CreateDealDto, userId: number) {
     return this.db.deal.create({
       data: {
         buyerId: userId,
-        productId: productId,
+        productId: createDealDto.productId,
         quantity: createDealDto.quantity,
         productSnapshot: Prisma.JsonNull,
-        priceAtPurchase: createDealDto.price, // ← обязательно
-        currency: createDealDto.currency, // ← обязательно
+        priceAtPurchase: createDealDto.price,
+        currency: createDealDto.currency,
       },
     });
   }
 
-  findOne(id: number) {
-    return this.db.deal.findUnique({ where: { id } });
+  async findOne(id: number) {
+    return await this.db.deal.findUnique({ where: { id } });
   }
 
-  update(id: number, updateDealDto: UpdateDealDto) {
+  async updateStatus(id: number, updateDealStatusDto: UpdateDealStatusDto) {
     return this.db.deal.update({
       where: { id },
-      data: { status: updateDealDto.status },
-    });
-  }
-
-  remove(id: number) {
-    return this.db.deal.update({
-      where: { id },
-      data: { deletedAt: new Date() },
+      data: { status: updateDealStatusDto.status },
     });
   }
 }

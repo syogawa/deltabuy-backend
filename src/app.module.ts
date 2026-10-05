@@ -10,6 +10,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { ProductModule } from "./product/product.module";
 import { BasketModule } from './basket/basket.module';
 import { DealModule } from './deal/deal.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { DealModule } from './deal/deal.module';
     }),
     BasketModule,
     DealModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [

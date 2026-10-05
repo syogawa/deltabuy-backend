@@ -1,3 +1,3 @@
 import { Request } from "express";
-
-export type AuthRequest = Request & { user: { id: number } };
+import { Role } from "../../../generated/prisma/enums";
+export type AuthRequest = Request & { user: { id: number; role: Role } };

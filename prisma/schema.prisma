@@ -51,7 +51,7 @@ model User {
   viewedProducts ProductViews[]                                                           //Список просмотренных продуктов
   favorite       Favorite[]                                                             //Список избранных продуктов
   basket         Basket[]
-
+  reviews        Review[]
   
 
   products Product[] @relation("SellerProducts")
@@ -69,7 +69,7 @@ model Product {
   createdAt         DateTime          @default(now()) @map("created_at")                           //Дата создания продукта
   updatedAt         DateTime?         @updatedAt @map("updated_at")                               //Дата обновления продукта   возможен null
   deletedAt         DateTime?         @map("deleted_at")                                          //Дата удаления продукта   возможен null
-  is_active         Boolean           @default(true) @map("is_active")                              //Статус активности продукта
+  isActive          Boolean           @default(true) @map("is_active")                              //Статус активности продукта
   hidden            Boolean           @default(false)                                               //Отображается ли продукт самому владельцу (для мягких удалений)
   
   seller User @relation("SellerProducts", fields: [sellerId], references: [id])
@@ -80,7 +80,7 @@ model Product {
   favorite          Favorite[]                              //Список пользователей, которые добавили продукт в избранное
   productCategories ProductCategory[]                      //Список категорий, к которым относится продукт
   basket            Basket[]
-
+  reviews           Review[]
 }
 
 model Deal {
@@ -100,7 +100,7 @@ model Deal {
   buyer   User    @relation(fields: [buyerId], references: [id])
   product Product @relation(fields: [productId], references: [id])
   
-
+  reviews   Review[]
   @@index([buyerId])
   @@index([productId])
 }
@@ -206,4 +206,22 @@ model Basket {
   @@index([userId, hidden])
   @@unique([userId, productId])
   @@map("basket")
+}
+
+model Review {
+  id          Int           @id @default(autoincrement())
+  dealId      Int           @unique                                                    // один отзыв на одну покупку
+  authorId    Int           @map("author_id")                                                          // покупатель (дублируем для быстрых выборок)
+  productId   Int           @map("product_id")                                            // для списка отзывов на товар
+  rating      Int                                                                      // 1..5
+  text        String?
+  hidden      Boolean       @default(false)                                            // мягкое удаление, как в корзине
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt      @map("updated_at")
+
+  deal        Deal          @relation(fields: [dealId], references: [id])
+  user    User    @relation(fields: [authorId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  @@index([productId, hidden])
+  @@index([authorId])
 }
