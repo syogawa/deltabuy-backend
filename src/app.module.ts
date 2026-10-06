@@ -11,6 +11,7 @@ import { ProductModule } from "./product/product.module";
 import { BasketModule } from './basket/basket.module';
 import { DealModule } from './deal/deal.module';
 import { ReviewModule } from './review/review.module';
+import { FavoriteModule } from './favorite/favorite.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ReviewModule } from './review/review.module';
     BasketModule,
     DealModule,
     ReviewModule,
+    FavoriteModule,
   ],
   controllers: [AppController],
   providers: [
