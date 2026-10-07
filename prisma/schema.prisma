@@ -148,11 +148,14 @@ model Category {
   createdAt         DateTime          @default(now()) @map("created_at") // дата создания
   updatedAt         DateTime?         @updatedAt @map("updated_at")   // дата последнего обновления
   deletedAt         DateTime?         @map("deleted_at")              // дата мягкого удаления (null = активна)
-  
+  hidden            Boolean           @default(false)
   // Связи
   productCategories ProductCategory[]                                 // many-to-many с товарами
   parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
   children Category[] @relation("CategoryTree")
+
+  @@index([id, hidden])
+  @@index([parentId, hidden])
 }
 
 model ProductViews {

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { DatabaseService } from "../database/database.service";
@@ -11,6 +11,17 @@ export class ProductService {
     createProductDto: CreateProductDto,
     userId: number,
   ): Promise<void> {
+    // убираем дубли, иначе упадёт на составном ключе [productId, categoryId]
+    const categoryIds = [...new Set(createProductDto.categoryIds)];
+
+    // проверяем, что все категории существуют и не удалены
+    const count = await this.db.category.count({
+      where: { id: { in: categoryIds }, deletedAt: null, hidden: false },
+    });
+    if (count !== categoryIds.length) {
+      throw new BadRequestException("Одна или несколько категорий не найдены");
+    }
+
     await this.db.product.create({
       data: {
         name: createProductDto.name,
@@ -18,6 +29,9 @@ export class ProductService {
         salePrice: createProductDto.price,
         description: createProductDto.description,
         sellerId: userId,
+        productCategories: {
+          create: categoryIds.map((categoryId) => ({ categoryId })),
+        },
       },
     });
   }
@@ -29,13 +43,21 @@ export class ProductService {
     return this.db.product.findFirst({ where: { id } });
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto) {
-    await this.db.product.updateMany({
-      where: { id: id },
+  async update(id: number, dto: UpdateProductDto) {
+    await this.db.product.update({
+      where: { id },
       data: {
-        salePrice: updateProductDto.price,
-        name: updateProductDto.name,
-        description: updateProductDto.description,
+        name: dto.name,
+        description: dto.description,
+        salePrice: dto.price,
+        ...(dto.categoryIds && {
+          productCategories: {
+            deleteMany: {},
+            create: [...new Set(dto.categoryIds)].map((categoryId) => ({
+              categoryId,
+            })),
+          },
+        }),
       },
     });
   }
@@ -43,14 +65,14 @@ export class ProductService {
   async deactivate(id: number) {
     await this.db.product.updateMany({
       where: { id: id },
-      data: { is_active: false },
+      data: { isActive: false },
     });
   }
 
   async activate(id: number) {
     await this.db.product.updateMany({
       where: { id: id },
-      data: { is_active: true },
+      data: { isActive: true },
     });
   }
 

@@ -12,6 +12,7 @@ import { BasketModule } from './basket/basket.module';
 import { DealModule } from './deal/deal.module';
 import { ReviewModule } from './review/review.module';
 import { FavoriteModule } from './favorite/favorite.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { FavoriteModule } from './favorite/favorite.module';
     DealModule,
     ReviewModule,
     FavoriteModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [

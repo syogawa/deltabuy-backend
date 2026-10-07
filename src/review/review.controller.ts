@@ -19,7 +19,7 @@ import * as authRequestType from "../auth/types/auth-request.type";
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
-  @Post()
+  @Post("create")
   create(
     @Body() createReviewDto: CreateReviewDto,
     @Req() req: authRequestType.AuthRequest,

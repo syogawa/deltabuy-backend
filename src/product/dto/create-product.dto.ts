@@ -1,5 +1,13 @@
-import { IsNotEmpty, IsNumber, IsString, MinLength } from "class-validator";
-
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  MinLength,
+} from "class-validator";
+import { Type } from "class-transformer";
 export class CreateProductDto {
   @MinLength(3)
   @IsString()
@@ -10,4 +18,10 @@ export class CreateProductDto {
 
   @IsString()
   description?: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  @Type(() => Number)
+  categoryIds!: number[];
 }

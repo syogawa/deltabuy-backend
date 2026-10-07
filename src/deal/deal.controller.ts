@@ -19,7 +19,7 @@ import * as authRequestType from "../auth/types/auth-request.type";
 export class DealController {
   constructor(private readonly dealService: DealService) {}
 
-  @Post()
+  @Post("create")
   create(
     @Body() createDealDto: CreateDealDto,
     @Req() req: authRequestType.AuthRequest,

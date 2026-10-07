@@ -6,7 +6,11 @@ import {
   IsString,
   MinLength,
   IsOptional,
+  ArrayNotEmpty,
+  IsArray,
+  IsInt,
 } from "class-validator";
+import { Type } from "class-transformer";
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {
   @IsOptional()
@@ -25,4 +29,11 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  @Type(() => Number)
+  categoryIds?: number[];
 }
