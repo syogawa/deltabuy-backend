@@ -75,7 +75,7 @@ model Product {
   seller User @relation("SellerProducts", fields: [sellerId], references: [id])
   //Связи с другими таблицами Many to Many
   deals             Deal[]                                  //Список сделок продукта           
-  productImages     productImage[]                           //Список изображений продукта 
+  productImages     ProductImage[]                           //Список изображений продукта 
   viewedProducts    ProductViews[]                           //Список пользователей, которые просмотрели продукт
   favorite          Favorite[]                              //Список пользователей, которые добавили продукт в избранное
   productCategories ProductCategory[]                      //Список категорий, к которым относится продукт
@@ -130,14 +130,18 @@ model Oauth {
   @@unique([userId, provider])    //к одному юзеру может привязан быть только один провайдер
 }
 
-model productImage {
-  id        Int    @id @default(autoincrement())  //первичный ключ айди
-  productId Int    @map("product_id")             //айди продукта  внешний ключ
-  url       String                                //дорога до изображения
-  position  Int    @default(0)                    //позиция изображения
-  //Связи с другими таблицами Many to Many
-  product Product @relation(fields: [productId], references: [id])
-  //название таблицы в базе данных
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  productId Int     @map("product_id")
+  url       String                        // относительный путь, например "products/abc123.jpg"
+  position  Int     @default(0)
+  hidden    Boolean @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, position])
+  @@index([productId])
   @@map("product_image")
 }
 

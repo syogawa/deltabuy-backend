@@ -13,6 +13,7 @@ import { DealModule } from './deal/deal.module';
 import { ReviewModule } from './review/review.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { CategoryModule } from './category/category.module';
+import { ImageModule } from './image/image.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { CategoryModule } from './category/category.module';
     ReviewModule,
     FavoriteModule,
     CategoryModule,
+    ImageModule,
   ],
   controllers: [AppController],
   providers: [
