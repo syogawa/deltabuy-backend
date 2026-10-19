@@ -2,16 +2,20 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
+  Put,
   Req,
+  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { FilesInterceptor } from "@nestjs/platform-express";
+import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import { memoryStorage } from "multer";
 import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
 import { ProductImageService } from "./image.service";
@@ -66,5 +70,49 @@ export class ProductImageController {
     }
 
     return this.service.addImages(req.user.id, productId, files, positions);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Patch("order")
+  reorder(
+    @Param("productId", ParseIntPipe) productId: number,
+    @Body("ids") ids: number[],
+    @Req() req: authRequestType.AuthRequest,
+  ) {
+    if (!Array.isArray(ids) || !ids.every((id) => Number.isInteger(id))) {
+      throw new BadRequestException("ids должен быть массивом целых чисел");
+    }
+    return this.service.reorder(req.user.id, productId, ids);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Put(":imageId")
+  @UseInterceptors(
+    FileInterceptor("file", {
+      storage: memoryStorage(),
+      limits: { fileSize: 12 * 1024 * 1024 },
+    }),
+  )
+  replace(
+    @Param("productId", ParseIntPipe) productId: number,
+    @Param("imageId", ParseIntPipe) imageId: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: authRequestType.AuthRequest,
+  ) {
+    if (!file) throw new BadRequestException("Файл не передан");
+    if (!ALLOWED.includes(file.mimetype)) {
+      throw new BadRequestException("Недопустимый тип файла");
+    }
+    return this.service.replace(req.user.id, productId, imageId, file);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Delete(":imageId")
+  remove(
+    @Param("productId", ParseIntPipe) productId: number,
+    @Param("imageId", ParseIntPipe) imageId: number,
+    @Req() req: authRequestType.AuthRequest,
+  ) {
+    return this.service.remove(req.user.id, productId, imageId);
   }
 }
