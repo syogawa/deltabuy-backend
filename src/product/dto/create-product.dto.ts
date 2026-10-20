@@ -4,6 +4,7 @@ import {
   IsInt,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   MinLength,
 } from "class-validator";
@@ -16,6 +17,7 @@ export class CreateProductDto {
   @IsNumber()
   price!: number;
 
+  @IsOptional()
   @IsString()
   description?: string;
 

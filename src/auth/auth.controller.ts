@@ -15,24 +15,26 @@ import { RegisterAuthDto } from "./dto/reg-auth";
 import { LoginAuthDto } from "./dto/login-auth.dto";
 import { User } from "../../generated/prisma/client";
 import express from "express";
-// import { Throttle } from "@nestjs/throttler";
+import { Throttle } from "@nestjs/throttler";
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Throttle({ default: { ttl: 300000, limit: 5 } })
   @UsePipes(new ValidationPipe())
   @Post("reg")
   async register(@Body() RegisterAuthDto: RegisterAuthDto) {
     return this.authService.register(RegisterAuthDto);
   }
 
+  @Throttle({ default: { ttl: 300000, limit: 5 } })
   @UsePipes(new ValidationPipe())
   @Post("login")
   async login(
     @Body() loginAuthDto: LoginAuthDto,
     @Res({ passthrough: true }) res: express.Response,
-  ): Promise<{ user: User; accessToken: string }> {
+  ): Promise<{ user: Omit<User, "password">; accessToken: string }> {
     const { user, refreshToken, accessToken } =
       await this.authService.login(loginAuthDto);
     res.cookie("refreshToken", refreshToken, {

@@ -40,7 +40,15 @@ export class ProductService {
   // }
 
   findOne(id: number) {
-    return this.db.product.findFirst({ where: { id } });
+    return this.db.product.findFirst({
+      where: { id },
+      include: {
+        productImages: {
+          where: { hidden: false },
+          orderBy: { position: "asc" },
+        },
+      },
+    });
   }
 
   async update(id: number, dto: UpdateProductDto) {

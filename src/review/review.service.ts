@@ -28,18 +28,26 @@ export class ReviewService {
         "Отзыв можно оставить после завершения покупки",
       );
     }
+    if (order.productId !== createReviewDto.productId) {
+      throw new BadRequestException("Этот товар не относится к данной сделке");
+    }
     try {
-      return this.db.review.create({
+      // await обязателен, иначе catch никогда не сработает
+      return await this.db.review.create({
         data: {
           rating: createReviewDto.rating,
           text: createReviewDto.text,
-          productId: createReviewDto.productId,
+          productId: order.productId,
           authorId: userId,
           dealId: createReviewDto.dealId,
         },
       });
-    } catch (e) {
-      throw new ConflictException(e);
+    } catch (e: any) {
+      // dealId unique: на одну сделку один отзыв
+      if (e?.code === "P2002") {
+        throw new ConflictException("Отзыв на эту покупку уже оставлен");
+      }
+      throw e;
     }
   }
 
@@ -50,7 +58,10 @@ export class ReviewService {
     userRole: Role,
   ) {
     const review = await this.getOwned(userId, id, userRole);
-    return this.db.review.update({ where: { id: review.id }, data: dto });
+    return this.db.review.update({
+      where: { id: review.id },
+      data: { rating: dto.rating, text: dto.text },
+    });
   }
 
   async remove(userId: number, id: number, userRole: Role) {

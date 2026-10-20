@@ -28,7 +28,12 @@ export class AccessTokenGuard implements CanActivate {
 
     const payload = await this.authService.validateAccessToken(token);
 
-    request["user"] = payload;
+    // в токене поле называется userId, а весь остальной код ждёт req.user.id
+    request["user"] = {
+      id: payload.userId,
+      role: payload.role,
+      email: payload.email,
+    };
 
     return true;
   }

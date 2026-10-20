@@ -1,14 +1,16 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsOptional, IsString, MaxLength } from "class-validator";
 export class UpdateUserDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
+  @MaxLength(100)
   name?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   avatar?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
+  @MaxLength(1000)
   description?: string;
 }

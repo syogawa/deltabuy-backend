@@ -8,12 +8,12 @@ import { ConfigModule } from "@nestjs/config";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { APP_GUARD } from "@nestjs/core";
 import { ProductModule } from "./product/product.module";
-import { BasketModule } from './basket/basket.module';
-import { DealModule } from './deal/deal.module';
-import { ReviewModule } from './review/review.module';
-import { FavoriteModule } from './favorite/favorite.module';
-import { CategoryModule } from './category/category.module';
-import { ImageModule } from './image/image.module';
+import { BasketModule } from "./basket/basket.module";
+import { DealModule } from "./deal/deal.module";
+import { ReviewModule } from "./review/review.module";
+import { FavoriteModule } from "./favorite/favorite.module";
+import { CategoryModule } from "./category/category.module";
+import { ImageModule } from "./image/image.module";
 
 @Module({
   imports: [
@@ -28,9 +28,11 @@ import { ImageModule } from './image/image.module';
     ThrottlerModule.forRoot({
       throttlers: [
         {
-          name: "auth",
-          ttl: 300000,
-          limit: 5,
+          // общий мягкий лимит на всё приложение: 100 запросов в минуту с IP
+          // (строгий лимит для login/reg задан через @Throttle в AuthController)
+          name: "default",
+          ttl: 60000,
+          limit: 100,
         },
       ],
     }),

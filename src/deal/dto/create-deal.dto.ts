@@ -1,19 +1,13 @@
-import { IsEnum, IsInt, IsJSON, IsNumber, IsString } from "class-validator";
-import { Currency } from "../../../generated/prisma/enums";
+import { IsInt, Max, Min } from "class-validator";
 
+// Цена, валюта и снимок товара берутся на сервере из БД — клиент их не присылает
 export class CreateDealDto {
   @IsInt()
-  quantity!: number;
-
-  @IsJSON()
-  productSnapshot!: JSON;
-
-  @IsNumber()
-  price!: number;
-
-  @IsEnum(Currency)
-  currency!: Currency;
+  @Min(1)
+  productId!: number;
 
   @IsInt()
-  productId!: number;
+  @Min(1)
+  @Max(99)
+  quantity!: number;
 }

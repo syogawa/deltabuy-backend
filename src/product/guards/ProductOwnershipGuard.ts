@@ -29,7 +29,7 @@ export class ProductOwnershipGuard implements CanActivate {
       throw new NotFoundException("Продукт не найден");
     }
 
-    if (product.sellerId !== user.userId) {
+    if (product.sellerId !== user.id) {
       throw new ForbiddenException(`Вы не являетесь владельцем этого продукта`);
     }
 

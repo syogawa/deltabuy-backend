@@ -49,9 +49,11 @@ export class AuthService {
   }
 
   //                       LOGIN
-  async login(
-    dto: LoginAuthDto,
-  ): Promise<{ user: User; refreshToken: string; accessToken: string }> {
+  async login(dto: LoginAuthDto): Promise<{
+    user: Omit<User, "password">;
+    refreshToken: string;
+    accessToken: string;
+  }> {
     const user = await this.userService.findOneByMail(dto.email);
     if (!user) {
       throw new ConflictException("Пользователь не найден!");
@@ -62,7 +64,7 @@ export class AuthService {
       throw new BadRequestException("Неверный логин или пароль!");
     }
 
-    const payload = { userId: user.id, email: user.email };
+    const payload = { userId: user.id, email: user.email, role: user.role };
     const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: "30d",
     });
@@ -79,7 +81,9 @@ export class AuthService {
       },
     });
 
-    return { user, refreshToken, accessToken };
+    // хэш пароля наружу не отдаём
+    const { password: _password, ...safeUser } = user;
+    return { user: safeUser, refreshToken, accessToken };
   }
 
   //                       CHECK AUTH
@@ -160,10 +164,14 @@ export class AuthService {
 
   // VALIDATE ACCESS TOKEN FOR GUARD
   async validateAccessToken(accessToken: string) {
-    const payload = await this.jwtService.verify(accessToken, {
-      secret: this.config.get<string>("JWT_ACCESS_SECRET"),
-    });
-    return payload;
+    try {
+      return this.jwtService.verify(accessToken, {
+        secret: this.config.get<string>("JWT_ACCESS_SECRET"),
+      });
+    } catch {
+      // иначе просроченный токен превращается в 500 вместо 401
+      throw new UnauthorizedException("Access token недействителен или истёк");
+    }
   }
 
   // VALIDATE REFRESH TOKEN FOR GUARD

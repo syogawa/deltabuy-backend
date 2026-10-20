@@ -22,36 +22,36 @@ export class FavoriteService {
     const fav = await this.findFav(userId, addFavoriteDto.productId);
     if (!fav) {
       try {
-        return this.db.favorite.create({
+        // await обязателен, иначе catch никогда не сработает
+        return await this.db.favorite.create({
           data: {
             productId: addFavoriteDto.productId,
             userId,
           },
         });
-      } catch (e) {
-        throw new ConflictException(e);
+      } catch {
+        throw new ConflictException("Не удалось добавить товар в избранное");
       }
     }
-    if (fav.hidden === true) {
-      this.db.favorite.update({
+    if (fav.hidden) {
+      // раньше был скрытый (удалённый) — возвращаем в избранное
+      return this.db.favorite.update({
         where: { id: fav.id },
         data: { hidden: false },
       });
     }
-    if (fav.hidden === false) {
-      throw new BadRequestException("Товар уже добавлен в избранное!");
-    }
+    throw new BadRequestException("Товар уже добавлен в избранное!");
   }
 
   async findAll(userId: number) {
-    return this.db.favorite.findMany({ where: { userId } });
+    return this.db.favorite.findMany({ where: { userId, hidden: false } });
   }
 
   async remove(id: number, userId: number) {
     const fav = await this.getOwned(userId, id);
     return this.db.favorite.update({
       where: { id: fav.id },
-      data: { hidden: false },
+      data: { hidden: true },
     });
   }
 

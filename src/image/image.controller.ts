@@ -73,7 +73,7 @@ export class ProductImageController {
   }
 
   @UseGuards(AccessTokenGuard)
-  @Patch("order")
+  @Patch("products/:productId/order")
   reorder(
     @Param("productId", ParseIntPipe) productId: number,
     @Body("ids") ids: number[],
@@ -86,7 +86,7 @@ export class ProductImageController {
   }
 
   @UseGuards(AccessTokenGuard)
-  @Put(":imageId")
+  @Put("products/:productId/:imageId")
   @UseInterceptors(
     FileInterceptor("file", {
       storage: memoryStorage(),
@@ -107,7 +107,7 @@ export class ProductImageController {
   }
 
   @UseGuards(AccessTokenGuard)
-  @Delete(":imageId")
+  @Delete("products/:productId/:imageId")
   remove(
     @Param("productId", ParseIntPipe) productId: number,
     @Param("imageId", ParseIntPipe) imageId: number,

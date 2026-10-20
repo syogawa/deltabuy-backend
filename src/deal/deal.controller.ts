@@ -5,6 +5,7 @@ import {
   Body,
   Patch,
   Param,
+  ParseIntPipe,
   UseGuards,
   Req,
 } from "@nestjs/common";
@@ -28,12 +29,19 @@ export class DealController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.dealService.findOne(+id);
+  findOne(
+    @Param("id", ParseIntPipe) id: number,
+    @Req() req: authRequestType.AuthRequest,
+  ) {
+    return this.dealService.findOne(id, req.user);
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updateDealDto: UpdateDealStatusDto) {
-    return this.dealService.updateStatus(+id, updateDealDto);
+  update(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateDealDto: UpdateDealStatusDto,
+    @Req() req: authRequestType.AuthRequest,
+  ) {
+    return this.dealService.updateStatus(id, updateDealDto, req.user);
   }
 }

@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  ParseIntPipe,
-  Param,
-  BadRequestException,
-  Post,
-  UsePipes,
-  ValidationPipe,
-  Body,
-} from "@nestjs/common";
+import { Controller } from "@nestjs/common";
 import { AppService } from "./app.service";
 
 @Controller()

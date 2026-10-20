@@ -52,7 +52,10 @@ export class UsersService {
   }
 
   async getMe(id: number) {
-    return this.db.user.findUnique({ where: { id } });
+    return this.db.user.findUnique({
+      where: { id },
+      omit: { password: true },
+    });
   }
 
   async remove(id: number) {

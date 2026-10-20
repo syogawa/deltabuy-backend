@@ -3,35 +3,19 @@ import {
   Get,
   Body,
   Patch,
-  Param,
   Delete,
-  ConflictException,
   UseGuards,
   Req,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
-import { SkipThrottle } from "@nestjs/throttler";
 // import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
 import * as authRequestType from "../auth/types/auth-request.type";
 
-@SkipThrottle({ auth: true })
 @Controller("users")
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    // private readonly,
-  ) {}
-
-  @Get("mail/:mail")
-  async findUser(@Param("mail") mail: string) {
-    const res = await this.usersService.findOneByMail(mail);
-    if (!res) {
-      throw new ConflictException("User not found!");
-    }
-    return res;
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   // ---------------NEED TO DO---------------------------------
   @UseGuards(AccessTokenGuard)
