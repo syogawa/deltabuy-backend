@@ -1,3 +1,4 @@
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import {
   Controller,
   Get,
@@ -15,7 +16,9 @@ import { UpdateDealStatusDto } from "./dto/update-deal-status.dto";
 import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
 import * as authRequestType from "../auth/types/auth-request.type";
 
+@ApiBearerAuth()
 @UseGuards(AccessTokenGuard)
+@ApiTags("deal")
 @Controller("deal")
 export class DealController {
   constructor(private readonly dealService: DealService) {}

@@ -1,3 +1,4 @@
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import {
   BadRequestException,
   Body,
@@ -24,12 +25,29 @@ import * as authRequestType from "../auth/types/auth-request.type";
 const MAX_FILES = 10;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp"];
 
+@ApiTags("images")
 @Controller("images")
 export class ProductImageController {
   constructor(private readonly service: ProductImageService) {}
 
+  @ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   @Post("products/:productId")
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        files: { type: "array", items: { type: "string", format: "binary" } },
+        positions: {
+          type: "string",
+          example: "[0,1]",
+          description: "необязательно: JSON-массив позиций, по одной на файл",
+        },
+      },
+      required: ["files"],
+    },
+  })
   @UseInterceptors(
     FilesInterceptor("files", MAX_FILES, {
       storage: memoryStorage(),
@@ -72,8 +90,16 @@ export class ProductImageController {
     return this.service.addImages(req.user.id, productId, files, positions);
   }
 
+  @ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   @Patch("products/:productId/order")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: { ids: { type: "array", items: { type: "integer" } } },
+      required: ["ids"],
+    },
+  })
   reorder(
     @Param("productId", ParseIntPipe) productId: number,
     @Body("ids") ids: number[],
@@ -85,8 +111,17 @@ export class ProductImageController {
     return this.service.reorder(req.user.id, productId, ids);
   }
 
+  @ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   @Put("products/:productId/:imageId")
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: { file: { type: "string", format: "binary" } },
+      required: ["file"],
+    },
+  })
   @UseInterceptors(
     FileInterceptor("file", {
       storage: memoryStorage(),
@@ -106,6 +141,7 @@ export class ProductImageController {
     return this.service.replace(req.user.id, productId, imageId, file);
   }
 
+  @ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   @Delete("products/:productId/:imageId")
   remove(

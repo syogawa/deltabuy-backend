@@ -1,3 +1,4 @@
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import {
   Controller,
   Get,
@@ -17,7 +18,9 @@ import { UpdateBasketItemDto } from "./dto/update-basket-item.dto";
 import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
 import * as authRequestType from "../auth/types/auth-request.type";
 
+@ApiTags("basket")
 @Controller("basket")
+@ApiBearerAuth()
 @UseGuards(AccessTokenGuard)
 export class BasketController {
   constructor(private readonly basketService: BasketService) {}

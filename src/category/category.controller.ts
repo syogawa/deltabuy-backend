@@ -1,3 +1,4 @@
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import {
   Controller,
   Get,
@@ -15,6 +16,7 @@ import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
 import * as authRequestType from "../auth/types/auth-request.type";
 
+@ApiTags("categories")
 @Controller("categories")
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
@@ -42,6 +44,7 @@ export class CategoryController {
   }
 
   //  ТОЛЬКО АДМИН
+  @ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   @Post("create")
   create(
@@ -50,6 +53,7 @@ export class CategoryController {
   ) {
     return this.categoryService.create(createCategoryDto, req.user.role);
   }
+  @ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   @Patch(":id")
   update(

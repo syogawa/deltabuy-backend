@@ -1,3 +1,4 @@
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import {
   Controller,
   Get,
@@ -19,6 +20,7 @@ import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
 import { ProductOwnershipGuard } from "./guards/ProductOwnershipGuard";
 import * as authRequestType from "../auth/types/auth-request.type";
 
+@ApiTags("product")
 @Controller("product")
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -38,6 +40,7 @@ export class ProductController {
   //==================================== ЗАЩИЩЁННЫЕ ЭНДПОИНТЫ ==================================
 
   @Post("create")
+  @ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   async create(
     @Body() createProductDto: CreateProductDto,
@@ -46,12 +49,14 @@ export class ProductController {
     return this.productService.create(createProductDto, req.user.id);
   }
 
+  @ApiBearerAuth()
   @UseGuards(AccessTokenGuard, ProductOwnershipGuard)
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productService.update(+id, updateProductDto);
   }
 
+  @ApiBearerAuth()
   @UseGuards(AccessTokenGuard, ProductOwnershipGuard)
   @Delete(":id")
   remove(@Param("id") id: string) {

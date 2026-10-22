@@ -1,3 +1,4 @@
+import { ApiTags } from "@nestjs/swagger";
 import {
   Controller,
   UsePipes,
@@ -17,6 +18,7 @@ import { User } from "../../generated/prisma/client";
 import express from "express";
 import { Throttle } from "@nestjs/throttler";
 
+@ApiTags("auth")
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

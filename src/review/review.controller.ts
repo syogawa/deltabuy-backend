@@ -1,3 +1,4 @@
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import {
   Controller,
   Post,
@@ -14,7 +15,9 @@ import { UpdateReviewDto } from "./dto/update-review.dto";
 import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
 import * as authRequestType from "../auth/types/auth-request.type";
 
+@ApiTags("review")
 @Controller("review")
+@ApiBearerAuth()
 @UseGuards(AccessTokenGuard)
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}

@@ -1,3 +1,4 @@
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import {
   Controller,
   Get,
@@ -13,7 +14,9 @@ import { AddFavoriteDto } from "./dto/add-favorite.dto";
 import { AccessTokenGuard } from "../auth/guards/AccessTokenGuard";
 import * as authRequestType from "../auth/types/auth-request.type";
 
+@ApiBearerAuth()
 @UseGuards(AccessTokenGuard)
+@ApiTags("favorite")
 @Controller("favorite")
 export class FavoriteController {
   constructor(private readonly favoriteService: FavoriteService) {}
