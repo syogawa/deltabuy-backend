@@ -26,9 +26,27 @@ enum Currency {
 
 //Описание статусов сделки
 enum DealStatus {
-  PAID
-  REFUNDED
+  PAID          //ОПЛАЧЕНО
+  REFUNDED      //ВОЗВРАТ СРЕДСТВ
+  COMPLETED     //СДЕЛКА ЗАВЕРШЕНА
+  DELIVERED     //ПРОДАВЕЦ СВОЮ ЧАСТЬ СДЕЛАЛ
+  DISPUTED      //СПОР
+}
+
+enum TransactionType {
+  DEPOSIT     // пополнение кошелька
+  WITHDRAWAL  // вывод средств
+  PAYMENT     // покупатель оплатил сделку
+  EARNING     // продавец получил деньги по сделке
+  REFUND      // возврат после отмены сделки
+  FEE         // коммиссия платформы
+}
+
+enum TransactionStatus {
+  PENDING
   COMPLETED
+  FAILED
+  CANCELLED
 }
 
 
@@ -53,7 +71,7 @@ model User {
   basket         Basket[]
   reviews        Review[]
   
-
+  wallet Wallet? 
   products Product[] @relation("SellerProducts")
 }
 
@@ -99,7 +117,7 @@ model Deal {
 
   buyer   User    @relation(fields: [buyerId], references: [id])
   product Product @relation(fields: [productId], references: [id])
-  
+  walletTransactions WalletTransaction[]  
   reviews   Review[]
   @@index([buyerId])
   @@index([productId])
@@ -235,4 +253,43 @@ model Review {
   product Product @relation(fields: [productId], references: [id])
   @@index([productId, hidden])
   @@index([authorId])
+}
+
+//Кошелек пользователя
+model Wallet {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique @map("user_id")          // один кошелек на пользователя
+  balance   Decimal  @default(0) @db.Decimal(10, 2)
+  holdBalance Decimal @default(0)
+  currency  Currency @default(RUB)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions WalletTransaction[]
+
+  @@map("wallet")
+}
+
+//Движения по кошельку
+model WalletTransaction {
+  id           Int               @id @default(autoincrement())
+  walletId     Int               @map("wallet_id")
+  type         TransactionType
+  status       TransactionStatus @default(PENDING)
+  amount       Decimal           @db.Decimal(10, 2)
+  currency     Currency
+  balanceAfter Decimal           @map("balance_after") @db.Decimal(10, 2) // баланс после операции
+  description  String?
+  externalId   String?           @unique @map("external_id")              // id у платежного провайдера
+  dealId       Int?              @map("deal_id")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  deal   Deal?  @relation(fields: [dealId], references: [id], onDelete: SetNull)
+
+  @@index([walletId, createdAt])
+  @@index([dealId])
+  @@map("wallet_transaction")
 }

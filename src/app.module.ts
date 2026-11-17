@@ -14,6 +14,7 @@ import { ReviewModule } from "./review/review.module";
 import { FavoriteModule } from "./favorite/favorite.module";
 import { CategoryModule } from "./category/category.module";
 import { ImageModule } from "./image/image.module";
+import { WalletModule } from './wallet/wallet.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ImageModule } from "./image/image.module";
     FavoriteModule,
     CategoryModule,
     ImageModule,
+    WalletModule,
   ],
   controllers: [AppController],
   providers: [
